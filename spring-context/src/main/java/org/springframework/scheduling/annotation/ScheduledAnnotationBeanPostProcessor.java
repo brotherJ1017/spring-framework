@@ -236,29 +236,34 @@ public class ScheduledAnnotationBeanPostProcessor
 		if (this.scheduler != null) {
 			this.registrar.setScheduler(this.scheduler);
 		}
-
+		// 1 --- 查找是否有SchedulingConfigurer类型的自定义的bean
 		if (this.beanFactory instanceof ListableBeanFactory) {
 			Map<String, SchedulingConfigurer> beans =
 					((ListableBeanFactory) this.beanFactory).getBeansOfType(SchedulingConfigurer.class);
 			List<SchedulingConfigurer> configurers = new ArrayList<>(beans.values());
 			AnnotationAwareOrderComparator.sort(configurers);
+			//1.1 、使用configureTasks重写的方法，为this.registrar赋值,初始化taskScheduler
 			for (SchedulingConfigurer configurer : configurers) {
 				configurer.configureTasks(this.registrar);
 			}
 		}
-
+		// 2  ---如果上面 1.1中已经赋值的话，这里this.registrar.getScheduler()！=null,直接跳过
 		if (this.registrar.hasTasks() && this.registrar.getScheduler() == null) {
 			Assert.state(this.beanFactory != null, "BeanFactory must be set to find scheduler by type");
 			try {
 				// Search for TaskScheduler bean...
+				// 2.1---  查找TaskScheduler类型的bean ,false表示不使用名字查找，根据结果初始化taskScheduler
 				this.registrar.setTaskScheduler(resolveSchedulerBean(this.beanFactory, TaskScheduler.class, false));
 			}
 			catch (NoUniqueBeanDefinitionException ex) {
 				logger.trace("Could not find unique TaskScheduler bean", ex);
 				try {
+					//2.2 --- 注意异常名字，NoUniqueBeanDefinitionException，不唯一
+					//如果有多个TaskScheduler类型的bean，则使用名字“taskScheduler”查找，根据结果初始化taskScheduler
 					this.registrar.setTaskScheduler(resolveSchedulerBean(this.beanFactory, TaskScheduler.class, true));
 				}
 				catch (NoSuchBeanDefinitionException ex2) {
+					//2.3 ---有多个TaskScheduler类型的bean，且，查询不到name为“taskScheduler”的bean
 					if (logger.isInfoEnabled()) {
 						logger.info("More than one TaskScheduler bean exists within the context, and " +
 								"none is named 'taskScheduler'. Mark one of them as primary or name it 'taskScheduler' " +
@@ -272,14 +277,17 @@ public class ScheduledAnnotationBeanPostProcessor
 				logger.trace("Could not find default TaskScheduler bean", ex);
 				// Search for ScheduledExecutorService bean next...
 				try {
+					//2.4---如果查不到TaskScheduler类型的bean，则默认查询ScheduledExecutorService类型的bean。根据结果初始化taskScheduler
 					this.registrar.setScheduler(resolveSchedulerBean(this.beanFactory, ScheduledExecutorService.class, false));
 				}
 				catch (NoUniqueBeanDefinitionException ex2) {
 					logger.trace("Could not find unique ScheduledExecutorService bean", ex2);
 					try {
+						//2.5 --- 如果不唯一，则根据名字taskScheduler查询。根据结果初始化taskScheduler
 						this.registrar.setScheduler(resolveSchedulerBean(this.beanFactory, ScheduledExecutorService.class, true));
 					}
 					catch (NoSuchBeanDefinitionException ex3) {
+						//2.6 ---如果不唯一，且根据名字也查不到
 						if (logger.isInfoEnabled()) {
 							logger.info("More than one ScheduledExecutorService bean exists within the context, and " +
 									"none is named 'taskScheduler'. Mark one of them as primary or name it 'taskScheduler' " +
@@ -290,6 +298,7 @@ public class ScheduledAnnotationBeanPostProcessor
 					}
 				}
 				catch (NoSuchBeanDefinitionException ex2) {
+					//2.7---如果查询不到，ScheduledExecutorService类型的bean
 					logger.trace("Could not find default ScheduledExecutorService bean", ex2);
 					// Giving up -> falling back to default scheduler within the registrar...
 					logger.info("No TaskScheduler/ScheduledExecutorService bean found for scheduled processing");

@@ -21,12 +21,14 @@ import java.util.regex.Pattern;
 
 import org.junit.Test;
 
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation6.ComponentForScanning;
 import org.springframework.context.annotation6.ConfigForScanning;
 import org.springframework.context.annotation6.Jsr330NamedForScanning;
@@ -61,7 +63,8 @@ public class AnnotationConfigApplicationContextTests {
 	@Test
 	public void registerAndRefresh() {
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-		context.register(Config.class, NameConfig.class);
+		context.register(AutowiredConfig.class);
+		//context.register(Config.class, NameConfig.class);
 		context.refresh();
 
 		context.getBean("testBean");
@@ -391,7 +394,8 @@ public class AnnotationConfigApplicationContextTests {
 	@Configuration
 	static class TwoTestBeanConfig {
 
-		@Bean TestBean tb1() {
+		@Bean
+		TestBean tb1() {
 			return new TestBean();
 		}
 
@@ -408,14 +412,24 @@ public class AnnotationConfigApplicationContextTests {
 
 	@Configuration
 	@Import(NameConfig.class)
-	static class AutowiredConfig {
+	//@Import(AspectJAutoProxyRegistrar.class)
+	//@ImportResource("org/springframework/aop/aspectj/AfterAdviceBindingTests.xml")
+	static class AutowiredConfig implements ApplicationContextAware {
 
-		@Autowired String autowiredName;
+		@Autowired
+		private String name;
+
+		private ApplicationContext applicationContext;
 
 		@Bean TestBean testBean() {
 			TestBean testBean = new TestBean();
-			testBean.name = autowiredName;
+			testBean.name = name;
 			return testBean;
+		}
+
+		@Override
+		public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+			this.applicationContext=applicationContext;
 		}
 	}
 
@@ -432,7 +446,8 @@ public class AnnotationConfigApplicationContextTests {
 
 	static class BeanB {
 
-		@Autowired ApplicationContext applicationContext;
+		@Autowired(required = false)
+		ApplicationContext applicationContext;
 
 		public BeanB() {
 		}

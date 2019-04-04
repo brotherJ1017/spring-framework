@@ -69,7 +69,9 @@ public class SimplePropertyNamespaceHandler implements NamespaceHandler {
 	public BeanDefinitionHolder decorate(Node node, BeanDefinitionHolder definition, ParserContext parserContext) {
 		if (node instanceof Attr) {
 			Attr attr = (Attr) node;
+			//得到属性的名称
 			String propertyName = parserContext.getDelegate().getLocalName(attr);
+			//得到属性的value
 			String propertyValue = attr.getValue();
 			MutablePropertyValues pvs = definition.getBeanDefinition().getPropertyValues();
 			if (pvs.contains(propertyName)) {
@@ -78,6 +80,7 @@ public class SimplePropertyNamespaceHandler implements NamespaceHandler {
 			}
 			if (propertyName.endsWith(REF_SUFFIX)) {
 				propertyName = propertyName.substring(0, propertyName.length() - REF_SUFFIX.length());
+				//使用了RuntimeBeanReference封装property value，表示之后在resolve该property value必须当作一个ref bean来 resolve
 				pvs.add(Conventions.attributeNameToPropertyName(propertyName), new RuntimeBeanReference(propertyValue));
 			}
 			else {

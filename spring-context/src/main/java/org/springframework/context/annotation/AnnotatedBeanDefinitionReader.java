@@ -222,7 +222,7 @@ public class AnnotatedBeanDefinitionReader {
 							@Nullable Class<? extends Annotation>[] qualifiers, BeanDefinitionCustomizer... definitionCustomizers) {
 		//根据指定的注解Bean定义类，创建Spring容器中对注解Bean的封装的数据结构
 		AnnotatedGenericBeanDefinition abd = new AnnotatedGenericBeanDefinition(annotatedClass);
-		//用来解析注释了@condition注解的匿名内部类，不满足条件跳过
+		//用来解析注释了@condition注解的类，不满足条件跳过
 		if (this.conditionEvaluator.shouldSkip(abd.getMetadata())) {
 			return;
 		}
@@ -256,7 +256,9 @@ public class AnnotatedBeanDefinitionReader {
 				}
 			}
 		}
-		//加载自定义的beanDefinition
+		/**
+		 * @see AnnotationConfigApplicationContextTests#individualBeanWithSupplier()
+		 */
 		for (BeanDefinitionCustomizer customizer : definitionCustomizers) {
 			customizer.customize(abd);
 		}

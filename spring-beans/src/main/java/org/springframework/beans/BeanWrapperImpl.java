@@ -320,6 +320,7 @@ public class BeanWrapperImpl extends AbstractNestablePropertyAccessor implements
 					return null;
 				});
 				try {
+					//在这里，最终将bean definition 的引用写入到当前的bean实例中，完成property set
 					AccessController.doPrivileged((PrivilegedExceptionAction<Object>) () ->
 							writeMethod.invoke(getWrappedInstance(), value), acc);
 				}

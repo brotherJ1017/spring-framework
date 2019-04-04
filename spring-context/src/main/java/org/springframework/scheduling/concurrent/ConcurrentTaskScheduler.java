@@ -209,6 +209,7 @@ public class ConcurrentTaskScheduler extends ConcurrentTaskExecutor implements T
 	}
 
 	@Override
+	//执行定时任务
 	public ScheduledFuture<?> scheduleAtFixedRate(Runnable task, long period) {
 		try {
 			return this.scheduledExecutor.scheduleAtFixedRate(decorateTask(task, true), 0, period, TimeUnit.MILLISECONDS);

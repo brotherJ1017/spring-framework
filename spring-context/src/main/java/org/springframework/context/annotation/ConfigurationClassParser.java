@@ -215,22 +215,31 @@ class ConfigurationClassParser {
 
 
 	protected void processConfigurationClass(ConfigurationClass configClass) throws IOException {
+		//是否满足加载条件
 		if (this.conditionEvaluator.shouldSkip(configClass.getMetadata(), ConfigurationPhase.PARSE_CONFIGURATION)) {
 			return;
 		}
 
 		ConfigurationClass existingClass = this.configurationClasses.get(configClass);
+		//当前configuration是否已被加载
 		if (existingClass != null) {
+			//如果已被加载
+			//并且新加载的Configuration通过@Import 注册
 			if (configClass.isImported()) {
+				//已存在的Configuration也是通过Import加载
 				if (existingClass.isImported()) {
+					//合并已加载的和新加载的Configuration
 					existingClass.mergeImportedBy(configClass);
 				}
+				//否则忽略新加载的Configuration
 				// Otherwise ignore new imported config class; existing non-imported class overrides it.
 				return;
 			}
+			//如果新加载的Configuration不是通过@Import 注册
 			else {
 				// Explicit bean definition found, probably replacing an import.
 				// Let's remove the old one and go with the new one.
+				//新加载的Configuration将替换通过@Import注册
 				this.configurationClasses.remove(configClass);
 				this.knownSuperclasses.values().removeIf(configClass::equals);
 			}

@@ -338,6 +338,7 @@ public class ScheduledTaskRegistrar implements ScheduledTaskHolder, Initializing
 	 */
 	@SuppressWarnings("deprecation")
 	protected void scheduleTasks() {
+		//如果taskScheduler始终未被初始化，则使用默认的线程池，newSingleThreadScheduledExecutor()，看名字就知道是单线程
 		if (this.taskScheduler == null) {
 			this.localExecutor = Executors.newSingleThreadScheduledExecutor();
 			this.taskScheduler = new ConcurrentTaskScheduler(this.localExecutor);

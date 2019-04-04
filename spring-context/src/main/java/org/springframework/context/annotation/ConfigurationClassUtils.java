@@ -78,6 +78,7 @@ abstract class ConfigurationClassUtils {
 	 * @param metadataReaderFactory the current factory in use by the caller
 	 * @return whether the candidate qualifies as (any kind of) configuration class
 	 */
+	//检查给定的bean定义是否是配置类的候选者（或在配置/组件类中声明的嵌套组件类，也要自动注册），并相应地进行标记。
 	public static boolean checkConfigurationClassCandidate(
 			BeanDefinition beanDef, MetadataReaderFactory metadataReaderFactory) {
 

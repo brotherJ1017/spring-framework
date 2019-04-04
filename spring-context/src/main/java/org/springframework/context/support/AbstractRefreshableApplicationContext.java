@@ -127,9 +127,12 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 			closeBeanFactory();
 		}
 		try {
+			//创建默认的DefaultListableBeanFactory工厂
 			DefaultListableBeanFactory beanFactory = createBeanFactory();
 			beanFactory.setSerializationId(getId());
+			//这个方法其实就是设置了allowBeanDefinitionOverriding和allowCircularReferences两个属性
 			customizeBeanFactory(beanFactory);
+			//调用子类的加载bean定义方法，这里会调用XmlWebApplicationContext子类的复写方法
 			loadBeanDefinitions(beanFactory);
 			synchronized (this.beanFactoryMonitor) {
 				this.beanFactory = beanFactory;
