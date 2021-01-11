@@ -141,6 +141,7 @@ public class HttpEntityMethodProcessor extends AbstractMessageConverterMethodPro
 		Object body = readWithMessageConverters(webRequest, parameter, paramType);
 		if (RequestEntity.class == parameter.getParameterType()) {
 			return new RequestEntity<>(body, inputMessage.getHeaders(),
+
 					inputMessage.getMethod(), inputMessage.getURI());
 		}
 		else {

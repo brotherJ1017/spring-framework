@@ -208,6 +208,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	protected void initHandlerMethods() {
 		for (String beanName : getCandidateBeanNames()) {
 			if (!beanName.startsWith(SCOPED_TARGET_NAME_PREFIX)) {
+				//处理候选类
 				processCandidateBean(beanName);
 			}
 		}
@@ -248,7 +249,9 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 				logger.trace("Could not resolve type for bean '" + beanName + "'", ex);
 			}
 		}
+		//是否含有特殊注解
 		if (beanType != null && isHandler(beanType)) {
+			//处理method
 			detectHandlerMethods(beanName);
 		}
 	}
@@ -264,6 +267,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 
 		if (handlerType != null) {
 			Class<?> userType = ClassUtils.getUserClass(handlerType);
+			//构建RequestMappingInfo
 			Map<Method, T> methods = MethodIntrospector.selectMethods(userType,
 					(MethodIntrospector.MetadataLookup<T>) method -> {
 						try {
@@ -271,6 +275,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 						}
 						catch (Throwable ex) {
 							throw new IllegalStateException("Invalid mapping on handler class [" +
+
 									userType.getName() + "]: " + method, ex);
 						}
 					});

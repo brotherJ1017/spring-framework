@@ -153,6 +153,7 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 
 	@Override
 	public void afterPropertiesSet() {
+		//处理Controller入口
 		this.config = new RequestMappingInfo.BuilderConfiguration();
 		this.config.setUrlPathHelper(getUrlPathHelper());
 		this.config.setPathMatcher(getPathMatcher());
@@ -221,10 +222,12 @@ public class RequestMappingHandlerMapping extends RequestMappingInfoHandlerMappi
 		if (info != null) {
 			RequestMappingInfo typeInfo = createRequestMappingInfo(handlerType);
 			if (typeInfo != null) {
+				//组合RequestMappingInfo
 				info = typeInfo.combine(info);
 			}
 			String prefix = getPathPrefix(handlerType);
 			if (prefix != null) {
+				//组合url
 				info = RequestMappingInfo.paths(prefix).build().combine(info);
 			}
 		}
